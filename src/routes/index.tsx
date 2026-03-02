@@ -5,13 +5,16 @@ import Eventos from "../pages/Eventos";
 import Participantes from "../pages/Participantes";
 import Checkin from "../pages/Checkin";
 import PrivateRoute from './PrivateRoute';
+import PublicRoute from "./PublicRoute";
 import Layout from '../app/Layout';
 
 export default function AppRoutes() {
     return (
         <BrowserRouter>
             <Routes>
-                <Route path="/login" element={<Login />} />
+                <Route element={<PublicRoute />}>
+                    <Route path="/login" element={<Login />} />
+                </Route>
 
                 <Route element={<PrivateRoute />}>
                     <Route element={<Layout />}>

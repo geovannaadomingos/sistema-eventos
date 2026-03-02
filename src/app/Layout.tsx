@@ -1,6 +1,15 @@
-import { Outlet, Link } from "react-router-dom";
+import { Outlet, Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 export default function Layout() {
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+
+  function handleLogout() {
+    logout();
+    navigate("/login");
+  }
+
   return (
     <div style={{ display: "flex", minHeight: "100vh" }}>
       <aside style={{ width: "200px", padding: "1rem", background: "#eee" }}>
@@ -11,6 +20,7 @@ export default function Layout() {
             <li><Link to="/participantes">Participantes</Link></li>
             <li><Link to="/checkin">Check-in</Link></li>
           </ul>
+          <button onClick={handleLogout}>Sair</button>
         </nav>
       </aside>
 
