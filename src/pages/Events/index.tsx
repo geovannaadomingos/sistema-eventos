@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { getEvents } from "../../services/eventService";
+import { getEvents, deleteEvent } from "../../services/eventService";
 import type { Event } from "../../types/Event";
 import { useAuth } from "../../context/AuthContext";
 
@@ -13,6 +13,7 @@ export default function Events() {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("todos");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchEvents() {
@@ -53,6 +54,25 @@ export default function Events() {
       return matchesSearch && matchesStatus;
     });
   }, [events, search, statusFilter]);
+
+  async function handleDelete(id: string) {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    const previousEvents = [...events];
+
+    try {
+      setDeletingId(id);
+      setEvents((prev) => prev.filter((event) => event.id !== id));
+
+      await deleteEvent(token, id);
+    } catch (err) {
+      setEvents(previousEvents);
+      alert("Erro ao remover evento");
+    } finally {
+      setDeletingId(null);
+    }
+  }
 
   if (loading) return <p>Carregando eventos...</p>;
   if (error) return <p style={{ color: "red" }}>{error}</p>;
@@ -147,9 +167,12 @@ export default function Events() {
                         style={{
                           ...actionButtonStyle,
                           color: "red",
+                          opacity: deletingId === event.id ? 0.5 : 1,
                         }}
+                        disabled={deletingId === event.id}
+                        onClick={() => handleDelete(event.id)}
                       >
-                        Remover
+                        {deletingId === event.id ? "Removendo..." : "Remover"}
                       </button>
                     </td>
                   </tr>
