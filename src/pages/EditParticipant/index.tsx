@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import ParticipantForm from '../components/ParticipantForm';
+import ParticipantForm from '../../components/ParticipantForm';
 import {
   getParticipants,
   updateParticipant,
-} from '../services/participantService';
-import { getEvents } from '../services/eventService';
-import type { Participant } from '../types/Participant';
-import type { Event } from '../types/Event';
+} from '../../services/participantService';
+import { getEvents } from '../../services/eventService';
+import type { Participant } from '../../types/Participant';
+import type { Event } from '../../types/Event';
 
 export default function EditParticipant() {
   const { id } = useParams();

@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { createEvent } from '../services/eventService';
-import EventForm from '../components/EventForm';
-import type { Event } from '../types/Event';
+import { createEvent } from '../../services/eventService';
+import EventForm from '../../components/EventForm';
+import type { Event } from '../../types/Event';
 
 export default function CreateEvent() {
   const navigate = useNavigate();

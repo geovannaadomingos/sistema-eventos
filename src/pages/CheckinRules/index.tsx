@@ -1,13 +1,13 @@
-import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
 import {
   getCheckinRules,
   createCheckinRule,
   updateCheckinRule,
   deleteCheckinRule,
-} from "../../services/checkinRuleService";
-import { validateCheckinRules } from "../../utils/validateCheckinRules";
-import type { CheckinRule } from "../../types/CheckinRule";
+} from '../../services/checkinRuleService';
+import { validateCheckinRules } from '../../utils/validateCheckinRules';
+import type { CheckinRule } from '../../types/CheckinRule';
 
 export default function CheckinRules() {
   const { id: eventId } = useParams();
@@ -17,7 +17,7 @@ export default function CheckinRules() {
   const [loading, setLoading] = useState(true);
 
   const [form, setForm] = useState({
-    name: "",
+    name: '',
     startOffsetMinutes: 0,
     endOffsetMinutes: 0,
     required: false,
@@ -26,12 +26,16 @@ export default function CheckinRules() {
 
   useEffect(() => {
     async function fetchRules() {
-      const token = localStorage.getItem("token");
-      if (!token || !eventId) return;
+      if (!eventId) return;
 
-      const data = await getCheckinRules(token, eventId);
-      setRules(data);
-      setLoading(false);
+      try {
+        const data = await getCheckinRules(undefined, eventId);
+        setRules(data);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
     }
 
     fetchRules();
@@ -42,36 +46,62 @@ export default function CheckinRules() {
   }, [rules]);
 
   async function handleCreate() {
-    const token = localStorage.getItem("token");
-    if (!token || !eventId) return;
+    if (!eventId) return;
 
-    const rule = await createCheckinRule(token, {
-      ...form,
-      eventId,
-    });
+    // validações simples antes de criar
+    if (!form.name || form.name.trim().length === 0) {
+      setErrors(['O nome da regra é obrigatório.']);
+      return;
+    }
 
-    setRules((prev) => [...prev, rule]);
+    if (form.startOffsetMinutes > form.endOffsetMinutes) {
+      setErrors(['A janela inicial não pode ser maior que a final.']);
+      return;
+    }
+
+    try {
+      const rule = await createCheckinRule(undefined, {
+        ...form,
+        eventId,
+      });
+
+      setRules((prev) => [...prev, rule]);
+
+      // reset form
+      setForm({
+        name: '',
+        startOffsetMinutes: 0,
+        endOffsetMinutes: 0,
+        required: false,
+        active: true,
+      });
+    } catch (err) {
+      console.error(err);
+      setErrors(['Erro ao criar regra.']);
+    }
   }
 
   async function handleToggle(rule: CheckinRule) {
-    const token = localStorage.getItem("token");
-    if (!token) return;
+    try {
+      const updated = await updateCheckinRule(undefined, rule.id, {
+        active: !rule.active,
+      });
 
-    const updated = await updateCheckinRule(token, rule.id, {
-      active: !rule.active,
-    });
-
-    setRules((prev) =>
-      prev.map((r) => (r.id === rule.id ? updated : r))
-    );
+      setRules((prev) => prev.map((r) => (r.id === rule.id ? updated : r)));
+    } catch (err) {
+      console.error(err);
+      setErrors(['Erro ao atualizar regra.']);
+    }
   }
 
   async function handleDelete(id: string) {
-    const token = localStorage.getItem("token");
-    if (!token) return;
-
-    await deleteCheckinRule(token, id);
-    setRules((prev) => prev.filter((r) => r.id !== id));
+    try {
+      await deleteCheckinRule(undefined, id);
+      setRules((prev) => prev.filter((r) => r.id !== id));
+    } catch (err) {
+      console.error(err);
+      setErrors(['Erro ao remover regra.']);
+    }
   }
 
   if (loading) return <p>Carregando regras...</p>;
@@ -81,9 +111,9 @@ export default function CheckinRules() {
       <h1>Configuração de Check-in</h1>
 
       {errors.length > 0 && (
-        <div style={{ background: "#ffe5e5", padding: 16, marginBottom: 20 }}>
+        <div style={{ background: '#ffe5e5', padding: 16, marginBottom: 20 }}>
           {errors.map((err, index) => (
-            <p key={index} style={{ color: "red" }}>
+            <p key={index} style={{ color: 'red' }}>
               {err}
             </p>
           ))}
@@ -95,9 +125,7 @@ export default function CheckinRules() {
       <input
         placeholder="Nome"
         value={form.name}
-        onChange={(e) =>
-          setForm({ ...form, name: e.target.value })
-        }
+        onChange={(e) => setForm({ ...form, name: e.target.value })}
       />
 
       <input
@@ -122,9 +150,7 @@ export default function CheckinRules() {
         <input
           type="checkbox"
           checked={form.required}
-          onChange={(e) =>
-            setForm({ ...form, required: e.target.checked })
-          }
+          onChange={(e) => setForm({ ...form, required: e.target.checked })}
         />
         Obrigatória
       </label>
@@ -141,18 +167,16 @@ export default function CheckinRules() {
             <li key={rule.id} style={{ marginBottom: 12 }}>
               <strong>{rule.name}</strong>
               <br />
-              Janela: {rule.startOffsetMinutes} min antes até{" "}
+              Janela: {rule.startOffsetMinutes} min antes até{' '}
               {rule.endOffsetMinutes} min depois
               <br />
-              {rule.required ? "Obrigatória" : "Opcional"} |{" "}
-              {rule.active ? "Ativa" : "Inativa"}
+              {rule.required ? 'Obrigatória' : 'Opcional'} |{' '}
+              {rule.active ? 'Ativa' : 'Inativa'}
               <br />
               <button onClick={() => handleToggle(rule)}>
-                {rule.active ? "Desativar" : "Ativar"}
+                {rule.active ? 'Desativar' : 'Ativar'}
               </button>
-              <button onClick={() => handleDelete(rule.id)}>
-                Remover
-              </button>
+              <button onClick={() => handleDelete(rule.id)}>Remover</button>
             </li>
           ))}
         </ul>

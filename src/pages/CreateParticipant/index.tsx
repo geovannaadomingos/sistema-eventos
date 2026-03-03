@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import ParticipantForm from '../components/ParticipantForm';
-import { createParticipant } from '../services/participantService';
-import { getEvents } from '../services/eventService';
-import type { Event } from '../types/Event';
-import type { Participant } from '../types/Participant';
+import ParticipantForm from '../../components/ParticipantForm';
+import { createParticipant } from '../../services/participantService';
+import { getEvents } from '../../services/eventService';
+import type { Event } from '../../types/Event';
+import type { Participant } from '../../types/Participant';
 
 export default function CreateParticipant() {
   const navigate = useNavigate();

@@ -1,36 +1,35 @@
-import { useEffect, useMemo, useState } from "react";
-import { getParticipants, deleteParticipant } from "../../services/participantService";
-import { getEvents } from "../../services/eventService";
-import type { Participant } from "../../types/Participant";
-import type { Event } from "../../types/Event";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useMemo, useState } from 'react';
+import {
+  getParticipants,
+  deleteParticipant,
+} from '../../services/participantService';
+import { getEvents } from '../../services/eventService';
+import type { Participant } from '../../types/Participant';
+import type { Event } from '../../types/Event';
+import { useNavigate } from 'react-router-dom';
 
 export default function Participants() {
   const navigate = useNavigate();
 
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [events, setEvents] = useState<Event[]>([]);
-  const [search, setSearch] = useState("");
-  const [eventFilter, setEventFilter] = useState("todos");
-  const [checkInFilter, setCheckInFilter] = useState("todos");
+  const [search, setSearch] = useState('');
+  const [eventFilter, setEventFilter] = useState('todos');
+  const [checkInFilter, setCheckInFilter] = useState('todos');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchData() {
-      const token = localStorage.getItem("token");
-      if (!token) return;
-
       try {
         setLoading(true);
-        const [p, e] = await Promise.all([
-          getParticipants(token),
-          getEvents(token),
-        ]);
+        const [p, e] = await Promise.all([getParticipants(), getEvents()]);
         setParticipants(p);
         setEvents(e);
-      } catch (err: any) {
-        setError(err.message);
+      } catch (err: unknown) {
+        const errorMessage =
+          err instanceof Error ? err.message : 'Erro ao carregar participantes';
+        setError(errorMessage);
       } finally {
         setLoading(false);
       }
@@ -43,41 +42,37 @@ export default function Participants() {
     return participants.filter((p) => {
       const matchesName = p.name.toLowerCase().includes(search.toLowerCase());
 
-      const matchesEvent =
-        eventFilter === "todos" || p.eventId === eventFilter;
+      const matchesEvent = eventFilter === 'todos' || p.eventId === eventFilter;
 
       const matchesCheckIn =
-        checkInFilter === "todos" ||
-        (checkInFilter === "feito" && p.checkIn) ||
-        (checkInFilter === "nao" && !p.checkIn);
+        checkInFilter === 'todos' ||
+        (checkInFilter === 'feito' && p.checkIn) ||
+        (checkInFilter === 'nao' && !p.checkIn);
 
       return matchesName && matchesEvent && matchesCheckIn;
     });
   }, [participants, search, eventFilter, checkInFilter]);
 
   async function handleDelete(id: string) {
-    const token = localStorage.getItem("token");
-    if (!token) return;
-
     const previous = [...participants];
 
     try {
       setParticipants((prev) => prev.filter((p) => p.id !== id));
-      await deleteParticipant(token, id);
+      await deleteParticipant(undefined, id);
     } catch {
       setParticipants(previous);
-      alert("Erro ao remover participante");
+      alert('Erro ao remover participante');
     }
   }
 
   if (loading) return <p>Carregando...</p>;
-  if (error) return <p style={{ color: "red" }}>{error}</p>;
+  if (error) return <p style={{ color: 'red' }}>{error}</p>;
 
   return (
     <main style={{ padding: 32 }}>
       <h1>Participantes</h1>
 
-      <button onClick={() => navigate("/participantes/criar")}>
+      <button onClick={() => navigate('/participantes/criar')}>
         Cadastrar Participante
       </button>
 
@@ -124,15 +119,15 @@ export default function Participants() {
                 <tr key={p.id}>
                   <td>{p.name}</td>
                   <td>{p.email}</td>
-                  <td>{event?.name || "Evento removido"}</td>
-                  <td>{p.checkIn ? "✔" : "—"}</td>
+                  <td>{event?.name || 'Evento removido'}</td>
+                  <td>{p.checkIn ? '✔' : '—'}</td>
                   <td>
-                    <button onClick={() => navigate(`/participantes/editar/${p.id}`)}>
+                    <button
+                      onClick={() => navigate(`/participantes/editar/${p.id}`)}
+                    >
                       Editar
                     </button>
-                    <button onClick={() => handleDelete(p.id)}>
-                      Remover
-                    </button>
+                    <button onClick={() => handleDelete(p.id)}>Remover</button>
                   </td>
                 </tr>
               );

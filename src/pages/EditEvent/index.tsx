@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { getEvents, updateEvent } from '../services/eventService';
-import EventForm from './EventForm';
-import type { Event } from '../types/Event';
+import { getEvents, updateEvent } from '../../services/eventService';
+import EventForm from '../../components/EventForm';
+import type { Event } from '../../types/Event';
 
 export default function EditEvent() {
   const { id } = useParams();
