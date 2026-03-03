@@ -68,7 +68,7 @@ export function AuthProvider({ children }: Props) {
   );
 }
 
-function useAuth() {
+export function useAuth() {
   const context = useContext(AuthContext);
 
   if (!context) {
@@ -80,6 +80,3 @@ function useAuth() {
 
 AuthProvider.displayName = 'AuthProvider';
 useAuth.displayName = 'useAuth';
-
-// eslint-disable-next-line react-refresh/only-export-components
-export { AuthProvider, useAuth };

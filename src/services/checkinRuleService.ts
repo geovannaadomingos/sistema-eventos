@@ -9,8 +9,8 @@ function validateToken(token: string) {
 }
 
 export async function getCheckinRules(
-  token?: string,
   eventId: string,
+  token?: string,
 ): Promise<CheckinRule[]> {
   return new Promise((resolve, reject) => {
     setTimeout(() => {
@@ -26,8 +26,8 @@ export async function getCheckinRules(
 }
 
 export async function createCheckinRule(
-  token: string | undefined,
   data: Omit<CheckinRule, 'id' | 'createdAt' | 'updatedAt'>,
+  token?: string,
 ): Promise<CheckinRule> {
   return new Promise((resolve, reject) => {
     setTimeout(() => {
@@ -52,9 +52,9 @@ export async function createCheckinRule(
 }
 
 export async function updateCheckinRule(
-  token: string | undefined,
   id: string,
   data: Partial<CheckinRule>,
+  token?: string,
 ): Promise<CheckinRule> {
   return new Promise((resolve, reject) => {
     setTimeout(() => {
@@ -80,8 +80,8 @@ export async function updateCheckinRule(
 }
 
 export async function deleteCheckinRule(
-  token: string | undefined,
   id: string,
+  token?: string,
 ): Promise<void> {
   return new Promise((resolve, reject) => {
     setTimeout(() => {

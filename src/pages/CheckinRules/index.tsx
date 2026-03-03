@@ -29,7 +29,7 @@ export default function CheckinRules() {
       if (!eventId) return;
 
       try {
-        const data = await getCheckinRules(undefined, eventId);
+        const data = await getCheckinRules(eventId);
         setRules(data);
       } catch (err) {
         console.error(err);
@@ -60,7 +60,7 @@ export default function CheckinRules() {
     }
 
     try {
-      const rule = await createCheckinRule(undefined, {
+      const rule = await createCheckinRule({
         ...form,
         eventId,
       });
@@ -83,7 +83,7 @@ export default function CheckinRules() {
 
   async function handleToggle(rule: CheckinRule) {
     try {
-      const updated = await updateCheckinRule(undefined, rule.id, {
+      const updated = await updateCheckinRule(rule.id, {
         active: !rule.active,
       });
 
@@ -96,7 +96,7 @@ export default function CheckinRules() {
 
   async function handleDelete(id: string) {
     try {
-      await deleteCheckinRule(undefined, id);
+      await deleteCheckinRule(id);
       setRules((prev) => prev.filter((r) => r.id !== id));
     } catch (err) {
       console.error(err);
