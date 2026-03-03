@@ -21,7 +21,7 @@ export async function getDashboardSummary(
                     }));
 
                 const recentCheckins = participants
-                    .filter((p) => p.checkedIn)
+                    .filter((p) => p.checkIn)
                     .slice(0, 5)
                     .map((p) => ({
                         participantName: p.name,

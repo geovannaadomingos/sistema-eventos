@@ -3,7 +3,7 @@ export interface Participant {
     name: string;
     email: string;
     eventId: string;
-    checkedIn: boolean;
+    checkIn: boolean;
     createdAt: string;
     updatedAt: string;
 }

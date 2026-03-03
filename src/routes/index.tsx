@@ -2,7 +2,9 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Login from '../pages/Login';
 import Dashboard from '../pages/Dashboard';
 import Events from '../pages/Events';
-import Participantes from "../pages/Participantes";
+import Participants from "../pages/Participants";
+import CreateParticipant from "../components/CreateParticipant";
+import EditParticipant from "../components/EditParticipant";
 import Checkin from '../pages/Checkin';
 import PrivateRoute from './PrivateRoute';
 import PublicRoute from "./PublicRoute";
@@ -21,11 +23,13 @@ export default function AppRoutes() {
                 <Route element={<PrivateRoute />}>
                     <Route element={<Layout />}>
                         <Route path="/dashboard" element={<Dashboard />} />
-                        <Route path="/events" element={<Events />} />
-                        <Route path="/participantes" element={<Participantes />} />
-                        <Route path="/checkin" element={<Checkin />} />
+                        <Route path="/eventos" element={<Events />} />
                         <Route path="/eventos/criar" element={<CreateEvent />} />
                         <Route path="/eventos/editar/:id" element={<EditEvent />} />
+                        <Route path="/participantes" element={<Participants />} />
+                        <Route path="/participantes/criar" element={<CreateParticipant />} />
+                        <Route path="/participantes/editar/:id" element={<EditParticipant />} />
+                        <Route path="/checkin" element={<Checkin />} />
                     </Route>
                 </Route>
 

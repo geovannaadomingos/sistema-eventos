@@ -162,9 +162,6 @@ export default function Events() {
                       </span>
                     </td>
                     <td>
-                      <button style={actionButtonStyle}>
-                        Ver
-                      </button>
                       <button
                         style={actionButtonStyle}
                         onClick={() => navigate(`/eventos/editar/${event.id}`)}

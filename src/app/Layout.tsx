@@ -16,7 +16,7 @@ export default function Layout() {
         <nav>
           <ul style={{ listStyle: "none", padding: 0 }}>
             <li><Link to="/dashboard">Dashboard</Link></li>
-            <li><Link to="/events">Eventos</Link></li>
+            <li><Link to="/eventos">Eventos</Link></li>
             <li><Link to="/participantes">Participantes</Link></li>
             <li><Link to="/checkin">Check-in</Link></li>
           </ul>
