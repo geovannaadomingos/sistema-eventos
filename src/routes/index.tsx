@@ -5,7 +5,7 @@ import Events from '../pages/Events';
 import Participants from "../pages/Participants";
 import CreateParticipant from "../components/CreateParticipant";
 import EditParticipant from "../components/EditParticipant";
-import Checkin from '../pages/Checkin';
+import CheckinRules from '../pages/CheckinRules';
 import PrivateRoute from './PrivateRoute';
 import PublicRoute from "./PublicRoute";
 import Layout from '../app/Layout';
@@ -29,7 +29,10 @@ export default function AppRoutes() {
                         <Route path="/participantes" element={<Participants />} />
                         <Route path="/participantes/criar" element={<CreateParticipant />} />
                         <Route path="/participantes/editar/:id" element={<EditParticipant />} />
-                        <Route path="/checkin" element={<Checkin />} />
+                        <Route
+                            path="/eventos/:id/regras-checkin"
+                            element={<CheckinRules />}
+                        />
                     </Route>
                 </Route>
 

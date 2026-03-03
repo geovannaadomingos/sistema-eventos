@@ -180,6 +180,9 @@ export default function Events() {
                         {deletingId === event.id ? "Removendo..." : "Remover"}
                       </button>
                     </td>
+                    <td><button onClick={() => navigate(`/eventos/${event.id}/regras-checkin`)}>
+                      Configurar Check-in
+                    </button></td>
                   </tr>
                 ))}
               </tbody>

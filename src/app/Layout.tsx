@@ -18,7 +18,6 @@ export default function Layout() {
             <li><Link to="/dashboard">Dashboard</Link></li>
             <li><Link to="/eventos">Eventos</Link></li>
             <li><Link to="/participantes">Participantes</Link></li>
-            <li><Link to="/checkin">Check-in</Link></li>
           </ul>
           <button onClick={handleLogout}>Sair</button>
         </nav>
