@@ -8,7 +8,7 @@ import {
 } from '../../services/checkinRuleService';
 import { validateCheckinRules } from '../../utils/validateCheckinRules';
 import type { CheckinRule } from '../../types/CheckinRule';
-import { FiTrash2, FiToggleLeft, FiToggleRight, FiPlus, FiClock } from 'react-icons/fi';
+import { FiTrash2, FiToggleLeft, FiToggleRight, FiPlus, FiClock, FiEdit2 } from 'react-icons/fi';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import Checkbox from '../../components/ui/Checkbox';
@@ -23,9 +23,11 @@ export default function CheckinRules() {
 
   const [rules, setRules] = useState<CheckinRule[]>([]);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true); // for initial fetch
+  const [creating, setCreating] = useState(false); // form submission state
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [editingRuleId, setEditingRuleId] = useState<string | null>(null);
   const [selectedRuleId, setSelectedRuleId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
@@ -73,15 +75,25 @@ export default function CheckinRules() {
       return;
     }
 
+    setCreating(true);
     try {
-      const rule = await createCheckinRule({
-        ...form,
-        eventId,
-      });
+      if (editingRuleId) {
+        const updated = await updateCheckinRule(editingRuleId, {
+          name: form.name,
+          startOffsetMinutes: form.startOffsetMinutes,
+          endOffsetMinutes: form.endOffsetMinutes,
+          required: form.required,
+        });
 
-      setRules((prev) => [...prev, rule]);
+        setRules((prev) => prev.map((r) => (r.id === editingRuleId ? updated : r)));
+      } else {
+        const rule = await createCheckinRule({
+          ...form,
+          eventId,
+        });
 
-      // reset form
+        setRules((prev) => [...prev, rule]);
+      }
       setForm({
         name: '',
         startOffsetMinutes: 0,
@@ -89,11 +101,38 @@ export default function CheckinRules() {
         required: false,
         active: true,
       });
+      setEditingRuleId(null);
       setFormErrors({});
     } catch (err) {
       console.error(err);
-      setFormErrors({ submit: 'Erro ao criar regra' });
+      setFormErrors({ submit: 'Erro ao salvar regra' });
+    } finally {
+      setCreating(false);
     }
+  }
+
+  function handleEditRule(rule: CheckinRule) {
+    setForm({
+      name: rule.name,
+      startOffsetMinutes: rule.startOffsetMinutes,
+      endOffsetMinutes: rule.endOffsetMinutes,
+      required: rule.required,
+      active: rule.active,
+    });
+    setEditingRuleId(rule.id);
+    setFormErrors({});
+  }
+
+  function handleCancelEdit() {
+    setForm({
+      name: '',
+      startOffsetMinutes: 0,
+      endOffsetMinutes: 0,
+      required: false,
+      active: true,
+    });
+    setEditingRuleId(null);
+    setFormErrors({});
   }
 
   async function handleToggle(rule: CheckinRule) {
@@ -172,10 +211,16 @@ export default function CheckinRules() {
         <div>
           <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2 mb-6">
             <FiPlus size={20} />
-            Adicionar Nova Regra
+            {editingRuleId ? 'Editar Regra' : 'Adicionar Nova Regra'}
           </h2>
 
-          <form className="space-y-5">
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleCreate();
+            }}
+            className="space-y-5"
+          >
             {formErrors.submit && (
               <Alert type="error" closable onClose={() => setFormErrors({})}>
                 {formErrors.submit}
@@ -189,6 +234,7 @@ export default function CheckinRules() {
               onChange={(e) => setForm({ ...form, name: e.target.value })}
               error={formErrors.name}
               autoFocus
+              disabled={loading || creating}
             />
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -201,6 +247,7 @@ export default function CheckinRules() {
                 }
                 helperText="Quando liberar o check-in (neg. = antes)"
                 icon={<FiClock size={18} />}
+                disabled={loading || creating}
               />
 
               <Input
@@ -212,6 +259,7 @@ export default function CheckinRules() {
                 }
                 helperText="Quando encerrar o check-in"
                 icon={<FiClock size={18} />}
+                disabled={loading || creating}
               />
             </div>
 
@@ -225,23 +273,29 @@ export default function CheckinRules() {
               label="Marcar como obrigatória"
               checked={form.required}
               onChange={(e) => setForm({ ...form, required: e.target.checked })}
+              disabled={loading || creating}
             />
 
             <div className="flex gap-3 pt-4">
-              <Button
-                onClick={handleCreate}
-                variant="primary"
-                className="gap-2"
-              >
+              <Button type="submit" variant="primary" className="gap-2" isLoading={creating}>
                 <FiPlus size={18} />
-                Adicionar Regra
+                {editingRuleId ? 'Salvar Alterações' : 'Adicionar Regra'}
               </Button>
+              {editingRuleId && (
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={handleCancelEdit}
+                  disabled={creating}
+                >
+                  Cancelar
+                </Button>
+              )}
             </div>
           </form>
         </div>
       </Card>
 
-      {/* Rules List */}
       <div>
         <h2 className="text-2xl font-bold text-gray-900 mb-4">Regras Configuradas</h2>
 
@@ -297,6 +351,14 @@ export default function CheckinRules() {
                     <Button
                       variant="ghost"
                       size="sm"
+                      onClick={() => handleEditRule(rule)}
+                      title="Editar regra"
+                    >
+                      <FiEdit2 size={20} className="text-primary-600" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
                       onClick={() => handleToggle(rule)}
                       title={rule.active ? 'Desativar' : 'Ativar'}
                     >
@@ -325,7 +387,6 @@ export default function CheckinRules() {
         )}
       </div>
 
-      {/* Delete Confirmation Modal */}
       <Modal
         isOpen={deleteModalOpen}
         onClose={() => {

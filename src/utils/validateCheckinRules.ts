@@ -1,10 +1,12 @@
 import type { CheckinRule } from '../types/CheckinRule';
 
-function hasIntersection(a: CheckinRule, b: CheckinRule) {
-  return (
-    a.startOffsetMinutes <= b.endOffsetMinutes &&
-    b.startOffsetMinutes <= a.endOffsetMinutes
-  );
+function hasCommonWindow(rules: CheckinRule[]): boolean {
+  if (rules.length === 0) return true;
+
+  const maxStart = Math.max(...rules.map((r) => r.startOffsetMinutes));
+  const minEnd = Math.min(...rules.map((r) => r.endOffsetMinutes));
+
+  return maxStart <= minEnd;
 }
 
 export function validateCheckinRules(rules: CheckinRule[]): string[] {
@@ -17,18 +19,11 @@ export function validateCheckinRules(rules: CheckinRule[]): string[] {
     errors.push('Deve existir pelo menos uma regra ativa.');
   }
 
-  if (required.length === 0) {
-    errors.push('Deve existir pelo menos uma regra obrigatória ativa.');
-  }
 
-  for (let i = 0; i < required.length; i++) {
-    for (let j = i + 1; j < required.length; j++) {
-      if (!hasIntersection(required[i], required[j])) {
-        errors.push(
-          'Existem regras obrigatórias com janelas de validação incompatíveis.',
-        );
-      }
-    }
+  if (required.length > 1 && !hasCommonWindow(required)) {
+    errors.push(
+      'Existem regras obrigatórias com janelas de validação incompatíveis. Não há um período onde todas as regras obrigatórias podem coexistir.',
+    );
   }
 
   return errors;
