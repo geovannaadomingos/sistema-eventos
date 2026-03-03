@@ -1,6 +1,10 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { FiMail, FiLock } from 'react-icons/fi';
+import Button from '../../components/ui/Button';
+import Input from '../../components/ui/Input';
+import Alert from '../../components/ui/Alert';
 
 export default function Login() {
   const { login } = useAuth();
@@ -27,7 +31,7 @@ export default function Login() {
     setLoading(false);
 
     if (!success) {
-      setError('Credenciais inválidas.');
+      setError('Email ou senha inválidos.');
       return;
     }
 
@@ -35,29 +39,65 @@ export default function Login() {
   }
 
   return (
-    <div>
-      <h1>Login</h1>
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-primary-600 to-primary-800 px-4">
+      <div className="w-full max-w-md">
+        {/* Card */}
+        <div className="bg-white rounded-2xl shadow-2xl p-8">
+          {/* Header */}
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">Bem-vindo</h1>
+            <p className="text-gray-600">Painel do Organizador de Eventos</p>
+          </div>
 
-      <form onSubmit={handleSubmit}>
-        <input
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
+          {/* Error Alert */}
+          {error && (
+            <div className="mb-6">
+              <Alert type="error" closable onClose={() => setError('')}>
+                {error}
+              </Alert>
+            </div>
+          )}
 
-        <input
-          placeholder="Senha"
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <Input
+              icon={<FiMail size={18} />}
+              type="email"
+              label="Email"
+              placeholder="seu.email@exemplo.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              disabled={loading}
+              autoFocus
+            />
 
-        <button type="submit" disabled={loading}>
-          {loading ? 'Entrando...' : 'Entrar'}
-        </button>
-      </form>
+            <Input
+              icon={<FiLock size={18} />}
+              type="password"
+              label="Senha"
+              placeholder="Sua senha"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              disabled={loading}
+            />
 
-      {error && <p style={{ color: 'red' }}>{error}</p>}
+            <Button
+              type="submit"
+              variant="primary"
+              size="lg"
+              className="w-full mt-6"
+              isLoading={loading}
+            >
+              Entrar
+            </Button>
+          </form>
+
+          {/* Footer */}
+          <p className="text-center text-sm text-gray-600 mt-6">
+            Credenciais de teste: admin@email.com / 123456
+          </p>
+        </div>
+      </div>
     </div>
   );
 }

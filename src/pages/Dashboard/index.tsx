@@ -1,6 +1,10 @@
 import { useEffect, useState } from 'react';
 import { getDashboardSummary } from '../../services/dashboardService';
 import type { DashboardSummary } from '../../types/Dashboard';
+import { FiCalendar, FiUsers } from 'react-icons/fi';
+import Card from '../../components/ui/Card';
+import LoadingSpinner from '../../components/ui/LoadingSpinner';
+import Alert from '../../components/ui/Alert';
 
 export default function Dashboard() {
   const [data, setData] = useState<DashboardSummary | null>(null);
@@ -27,89 +31,137 @@ export default function Dashboard() {
     fetchDashboard();
   }, []);
 
-  if (loading) return <p>Carregando dashboard...</p>;
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <LoadingSpinner message="Carregando dashboard..." />
+      </div>
+    );
+  }
 
-  if (error) return <p style={{ color: 'red' }}>{error}</p>;
+  if (error) {
+    return (
+      <div className="p-8">
+        <Alert type="error" title="Erro ao carregar dashboard">
+          {error}
+        </Alert>
+      </div>
+    );
+  }
 
-  if (!data) return <p>Nenhum dado disponível.</p>;
+  if (!data) {
+    return (
+      <div className="p-8">
+        <Alert type="info">Nenhum dado disponível.</Alert>
+      </div>
+    );
+  }
 
   return (
-    <main style={{ padding: '32px', maxWidth: '1000px', margin: '0 auto' }}>
-      <header>
-        <h1>Painel do Organizador</h1>
-        <p>Visão geral dos seus eventos e participantes.</p>
-      </header>
+    <main className="p-6 lg:p-8 max-w-7xl mx-auto">
+      {/* Header */}
+      <div className="mb-8">
+        <h1 className="text-4xl font-bold text-gray-900 mb-2">
+          Painel do Organizador
+        </h1>
+        <p className="text-gray-600">Visão geral dos seus eventos e participantes.</p>
+      </div>
 
-      <section style={{ marginTop: '32px' }}>
-        <h2>Resumo</h2>
-
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-            gap: '16px',
-            marginTop: '16px',
-          }}
-        >
-          <div style={cardStyle}>
-            <h3>Total de Eventos</h3>
-            <p style={bigNumberStyle}>{data.totalEvents}</p>
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        {/* Total de Eventos */}
+        <Card className="flex items-center gap-4">
+          <div className="flex-shrink-0">
+            <div className="flex items-center justify-center h-12 w-12 rounded-lg bg-primary-100">
+              <FiCalendar className="h-6 w-6 text-primary-600" />
+            </div>
           </div>
-
-          <div style={cardStyle}>
-            <h3>Total de Participantes</h3>
-            <p style={bigNumberStyle}>{data.totalParticipants}</p>
+          <div className="flex-1">
+            <p className="text-sm text-gray-600 mb-1">Total de Eventos</p>
+            <p className="text-3xl font-bold text-gray-900">{data.totalEvents}</p>
           </div>
-        </div>
-      </section>
+        </Card>
 
-      <section style={{ marginTop: '40px' }}>
-        <h2>Próximos Eventos</h2>
+        {/* Total de Participantes */}
+        <Card className="flex items-center gap-4">
+          <div className="flex-shrink-0">
+            <div className="flex items-center justify-center h-12 w-12 rounded-lg bg-secondary-100">
+              <FiUsers className="h-6 w-6 text-secondary-600" />
+            </div>
+          </div>
+          <div className="flex-1">
+            <p className="text-sm text-gray-600 mb-1">Total de Participantes</p>
+            <p className="text-3xl font-bold text-gray-900">{data.totalParticipants}</p>
+          </div>
+        </Card>
+      </div>
+
+      {/* Próximos Eventos */}
+      <section className="mb-8">
+        <h2 className="text-2xl font-bold text-gray-900 mb-4">Próximos Eventos</h2>
 
         {data.upcomingEvents.length === 0 ? (
-          <p>Nenhum evento ativo encontrado.</p>
+          <Card>
+            <p className="text-gray-500 text-center py-8">
+              Nenhum evento ativo encontrado.
+            </p>
+          </Card>
         ) : (
-          <ul style={{ marginTop: '16px' }}>
+          <div className="grid gap-4">
             {data.upcomingEvents.map((event) => (
-              <li key={event.id}>
-                <strong>{event.name}</strong>
-                <br />
-                <small>{new Date(event.date).toLocaleString()}</small>
-              </li>
+              <Card
+                key={event.id}
+                className="flex items-center justify-between hover:shadow-lg transition-shadow"
+              >
+                <div className="flex-1">
+                  <h3 className="font-semibold text-gray-900">{event.name}</h3>
+                  <p className="text-sm text-gray-600 mt-1">
+                    {new Date(event.date).toLocaleString('pt-BR')}
+                  </p>
+                </div>
+                <div className="text-right">
+                  <span className="inline-block px-3 py-1 bg-primary-100 text-primary-700 rounded-full text-sm font-medium">
+                    Próximo
+                  </span>
+                </div>
+              </Card>
             ))}
-          </ul>
+          </div>
         )}
       </section>
 
-      <section style={{ marginTop: '40px' }}>
-        <h2>Últimos Check-ins</h2>
+      {/* Últimos Check-ins */}
+      <section>
+        <h2 className="text-2xl font-bold text-gray-900 mb-4">Últimos Check-ins</h2>
 
         {data.recentCheckins.length === 0 ? (
-          <p>Nenhum check-in recente.</p>
+          <Card>
+            <p className="text-gray-500 text-center py-8">
+              Nenhum check-in recente.
+            </p>
+          </Card>
         ) : (
-          <ul style={{ marginTop: '16px' }}>
+          <div className="grid gap-4">
             {data.recentCheckins.map((checkin, index) => (
-              <li key={index}>
-                <strong>{checkin.participantName}</strong> no evento{' '}
-                <strong>{checkin.eventName}</strong>
-                <br />
-                <small>{new Date(checkin.checkinDate).toLocaleString()}</small>
-              </li>
+              <Card key={index} className="flex items-center justify-between">
+                <div className="flex-1">
+                  <p className="font-semibold text-gray-900">
+                    {checkin.participantName}
+                  </p>
+                  <p className="text-sm text-gray-600 mt-1">
+                    Evento: {checkin.eventName}
+                  </p>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm text-gray-500">
+                    {new Date(checkin.checkinDate).toLocaleString('pt-BR')}
+                  </p>
+                </div>
+              </Card>
             ))}
-          </ul>
+          </div>
         )}
       </section>
     </main>
   );
 }
-
-const cardStyle: React.CSSProperties = {
-  padding: '16px',
-  border: '1px solid #ddd',
-  borderRadius: '8px',
-};
-
-const bigNumberStyle: React.CSSProperties = {
-  fontSize: '28px',
-  fontWeight: 'bold',
-};

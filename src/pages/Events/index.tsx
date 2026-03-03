@@ -2,6 +2,15 @@ import { useEffect, useMemo, useState } from 'react';
 import { getEvents, deleteEvent } from '../../services/eventService';
 import type { Event } from '../../types/Event';
 import { useNavigate } from 'react-router-dom';
+import { FiPlus, FiEdit2, FiTrash2, FiSettings } from 'react-icons/fi';
+import Button from '../../components/ui/Button';
+import Input from '../../components/ui/Input';
+import Select from '../../components/ui/Select';
+import Table from '../../components/ui/Table';
+import Modal from '../../components/ui/Modal';
+import Alert from '../../components/ui/Alert';
+import LoadingSpinner from '../../components/ui/LoadingSpinner';
+import clsx from 'clsx';
 
 type StatusFilter = 'todos' | 'ativo' | 'encerrado';
 
@@ -12,6 +21,8 @@ export default function Events() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -53,148 +64,199 @@ export default function Events() {
     try {
       setDeletingId(id);
       setEvents((prev) => prev.filter((event) => event.id !== id));
+      setDeleteModalOpen(false);
+      setSelectedEvent(null);
 
       await deleteEvent(undefined, id);
     } catch {
       setEvents(previousEvents);
-      alert('Erro ao remover evento');
+      setError('Erro ao remover evento');
     } finally {
       setDeletingId(null);
     }
   }
 
-  if (loading) return <p>Carregando eventos...</p>;
-  if (error) return <p style={{ color: 'red' }}>{error}</p>;
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <LoadingSpinner message="Carregando eventos..." />
+      </div>
+    );
+  }
 
   return (
-    <main style={{ padding: '32px', maxWidth: '1100px', margin: '0 auto' }}>
-      <header>
-        <h1>Eventos</h1>
-        <p>Gerencie seus eventos cadastrados.</p>
-      </header>
-      <section style={{ marginTop: '32px' }}>
-        <h2>Buscar e Filtrar</h2>
-
-        <div
-          style={{
-            display: 'flex',
-            gap: '16px',
-            marginTop: '16px',
-            flexWrap: 'wrap',
-          }}
+    <main className="p-6 lg:p-8 max-w-7xl mx-auto">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-8">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Eventos</h1>
+          <p className="text-gray-600">Gerencie seus eventos cadastrados.</p>
+        </div>
+        <Button
+          onClick={() => navigate('/eventos/criar')}
+          variant="primary"
+          className="gap-2"
         >
-          <input
+          <FiPlus size={18} />
+          Novo Evento
+        </Button>
+      </div>
+
+      {/* Error Alert */}
+      {error && (
+        <div className="mb-6">
+          <Alert type="error" closable onClose={() => setError(null)}>
+            {error}
+          </Alert>
+        </div>
+      )}
+
+      {/* Filters */}
+      <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+        <h2 className="text-sm font-semibold text-gray-900 uppercase tracking-wide mb-4">
+          Buscar e Filtrar
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Input
             type="text"
-            placeholder="Buscar por nome..."
+            placeholder="Buscar por nome do evento..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            style={inputStyle}
+            icon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>}
           />
 
-          <select
+          <Select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
-            style={inputStyle}
-          >
-            <option value="todos">Todos</option>
-            <option value="ativo">Ativos</option>
-            <option value="encerrado">Encerrados</option>
-          </select>
+            options={[
+              { value: 'todos', label: 'Todos os status' },
+              { value: 'ativo', label: 'Ativos' },
+              { value: 'encerrado', label: 'Encerrados' },
+            ]}
+          />
         </div>
-      </section>
+      </div>
 
-      <section style={{ marginTop: '40px' }}>
-        <h2>Lista de Eventos</h2>
-
-        {filteredEvents.length === 0 ? (
-          <p style={{ marginTop: '16px' }}>
+      {/* Events List */}
+      {filteredEvents.length === 0 ? (
+        <div className="bg-white rounded-lg shadow-md p-12 text-center">
+          <p className="text-gray-500 text-lg">
             Nenhum evento encontrado com os filtros aplicados.
           </p>
-        ) : (
-          <div style={{ marginTop: '24px', overflowX: 'auto' }}>
-            <button onClick={() => navigate('/eventos/criar')}>
-              Criar Evento
-            </button>
-            <table style={tableStyle}>
-              <thead>
-                <tr>
-                  <th>Nome</th>
-                  <th>Data</th>
-                  <th>Local</th>
-                  <th>Status</th>
-                  <th>Ações</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredEvents.map((event) => (
-                  <tr key={event.id}>
-                    <td>{event.name}</td>
-                    <td>{new Date(event.date).toLocaleString()}</td>
-                    <td>{event.location}</td>
-                    <td>
-                      <span
-                        style={{
-                          color: event.status === 'ativo' ? 'green' : 'gray',
-                          fontWeight: 'bold',
-                        }}
-                      >
-                        {event.status}
-                      </span>
-                    </td>
-                    <td>
-                      <button
-                        style={actionButtonStyle}
-                        onClick={() => navigate(`/eventos/editar/${event.id}`)}
-                      >
-                        Editar
-                      </button>
-                      <button
-                        style={{
-                          ...actionButtonStyle,
-                          color: 'red',
-                          opacity: deletingId === event.id ? 0.5 : 1,
-                        }}
-                        disabled={deletingId === event.id}
-                        onClick={() => handleDelete(event.id)}
-                      >
-                        {deletingId === event.id ? 'Removendo...' : 'Remover'}
-                      </button>
-                    </td>
-                    <td>
-                      <button
-                        onClick={() =>
-                          navigate(`/eventos/${event.id}/regras-checkin`)
-                        }
-                      >
-                        Configurar Check-in
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </section>
+        </div>
+      ) : (
+        <Table<Event>
+          columns={[
+            {
+              key: 'name',
+              label: 'Nome do Evento',
+              render: (value) => <span className="font-semibold">{value}</span>,
+            },
+            {
+              key: 'date',
+              label: 'Data e Hora',
+              render: (value) => new Date(value).toLocaleString('pt-BR'),
+            },
+            {
+              key: 'location',
+              label: 'Local',
+            },
+            {
+              key: 'status',
+              label: 'Status',
+              render: (value) => (
+                <span
+                  className={clsx(
+                    'inline-block px-3 py-1 rounded-full text-sm font-medium',
+                    value === 'ativo'
+                      ? 'bg-green-100 text-green-800'
+                      : 'bg-gray-100 text-gray-800'
+                  )}
+                >
+                  {value === 'ativo' ? 'Ativo' : 'Encerrado'}
+                </span>
+              ),
+            },
+            {
+              key: 'actions',
+              label: 'Ações',
+              render: (_, event) => (
+                <div className="flex gap-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => navigate(`/eventos/editar/${event.id}`)}
+                    title="Editar evento"
+                  >
+                    <FiEdit2 size={16} />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => navigate(`/eventos/${event.id}/regras-checkin`)}
+                    title="Configurar regras de check-in"
+                  >
+                    <FiSettings size={16} />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      setSelectedEvent(event);
+                      setDeleteModalOpen(true);
+                    }}
+                    title="Remover evento"
+                  >
+                    <FiTrash2 size={16} className="text-error" />
+                  </Button>
+                </div>
+              ),
+            },
+          ]}
+          data={filteredEvents}
+          keyExtractor={(event) => event.id}
+          emptyMessage="Nenhum evento encontrado"
+        />
+      )}
+
+      {/* Delete Confirmation Modal */}
+      <Modal
+        isOpen={deleteModalOpen}
+        onClose={() => {
+          setDeleteModalOpen(false);
+          setSelectedEvent(null);
+        }}
+        title="Confirmar exclusão"
+        isDanger
+        footer={
+          <>
+            <Button
+              variant="secondary"
+              onClick={() => {
+                setDeleteModalOpen(false);
+                setSelectedEvent(null);
+              }}
+            >
+              Cancelar
+            </Button>
+            <Button
+              variant="danger"
+              isLoading={deletingId === selectedEvent?.id}
+              onClick={() => selectedEvent && handleDelete(selectedEvent.id)}
+            >
+              Remover
+            </Button>
+          </>
+        }
+      >
+        <p className="text-gray-700">
+          Tem certeza que deseja remover o evento{' '}
+          <strong>{selectedEvent?.name}</strong>?
+        </p>
+        <p className="text-sm text-gray-500 mt-2">
+          Esta ação não pode ser desfeita.
+        </p>
+      </Modal>
     </main>
   );
 }
-
-const inputStyle: React.CSSProperties = {
-  padding: '8px',
-  borderRadius: '6px',
-  border: '1px solid #ccc',
-  minWidth: '200px',
-};
-
-const tableStyle: React.CSSProperties = {
-  width: '100%',
-  borderCollapse: 'collapse',
-};
-
-const actionButtonStyle: React.CSSProperties = {
-  marginRight: '8px',
-  background: 'none',
-  border: 'none',
-  cursor: 'pointer',
-};
