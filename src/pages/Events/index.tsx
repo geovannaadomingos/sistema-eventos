@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { getEvents, deleteEvent } from "../../services/eventService";
 import type { Event } from "../../types/Event";
 import { useAuth } from "../../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 type StatusFilter = "todos" | "ativo" | "encerrado";
 
@@ -14,6 +15,7 @@ export default function Events() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     async function fetchEvents() {
@@ -125,6 +127,9 @@ export default function Events() {
           </p>
         ) : (
           <div style={{ marginTop: "24px", overflowX: "auto" }}>
+            <button onClick={() => navigate("/eventos/criar")}>
+              Criar Evento
+            </button>
             <table style={tableStyle}>
               <thead>
                 <tr>
@@ -160,7 +165,10 @@ export default function Events() {
                       <button style={actionButtonStyle}>
                         Ver
                       </button>
-                      <button style={actionButtonStyle}>
+                      <button
+                        style={actionButtonStyle}
+                        onClick={() => navigate(`/eventos/editar/${event.id}`)}
+                      >
                         Editar
                       </button>
                       <button

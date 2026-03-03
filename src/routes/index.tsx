@@ -7,6 +7,8 @@ import Checkin from '../pages/Checkin';
 import PrivateRoute from './PrivateRoute';
 import PublicRoute from "./PublicRoute";
 import Layout from '../app/Layout';
+import CreateEvent from "../components/CreateEvent";
+import EditEvent from "../components/EditEvent";
 
 export default function AppRoutes() {
     return (
@@ -22,6 +24,8 @@ export default function AppRoutes() {
                         <Route path="/events" element={<Events />} />
                         <Route path="/participantes" element={<Participantes />} />
                         <Route path="/checkin" element={<Checkin />} />
+                        <Route path="/eventos/criar" element={<CreateEvent />} />
+                        <Route path="/eventos/editar/:id" element={<EditEvent />} />
                     </Route>
                 </Route>
 
