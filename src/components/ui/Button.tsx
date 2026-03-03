@@ -17,7 +17,7 @@ export default function Button({
     children,
     ...props
 }: ButtonProps) {
-    const baseStyles = clsx('btn-base font-semibold gap-2');
+    const baseStyles = clsx('btn-base font-semibold gap-2 flex items-center justify-center');
 
     const variantStyles = {
         primary: 'bg-primary-600 text-white hover:bg-primary-700',

@@ -27,9 +27,25 @@ export default function EventForm({ initialData, onSubmit, loading }: Props) {
     );
     const [error, setError] = useState<string | null>(null);
 
+    const MIN_DATE = '1900-01-01T00:00';
+    const MAX_DATE = '2100-12-31T23:59';
+
     const errors: Record<string, string> = {};
     if (!name) errors.name = 'Nome é obrigatório';
-    if (!date) errors.date = 'Data é obrigatória';
+    if (!date) {
+        errors.date = 'Data é obrigatória';
+    } else {
+        // basic format check for datetime-local (YYYY-MM-DDTHH:MM)
+        const datetimeRegex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/;
+        if (!datetimeRegex.test(date)) {
+            errors.date = 'Formato de data inválido';
+        } else {
+            const year = Number(date.slice(0, 4));
+            if (Number.isNaN(year) || year < 1900 || year > 2100) {
+                errors.date = 'Ano inválido (1900–2100)';
+            }
+        }
+    }
     if (!location) errors.location = 'Local é obrigatório';
 
     async function handleSubmit(e: React.FormEvent) {
@@ -80,6 +96,8 @@ export default function EventForm({ initialData, onSubmit, loading }: Props) {
                     type="datetime-local"
                     value={date}
                     onChange={(e) => setDate(e.target.value)}
+                    min={MIN_DATE}
+                    max={MAX_DATE}
                     error={errors.date}
                     disabled={loading}
                 />
