@@ -19,11 +19,22 @@ import {
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import Checkbox from '../../components/ui/Checkbox';
+import Select from '../../components/ui/Select';
 import Card from '../../components/ui/Card';
 import Alert from '../../components/ui/Alert';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
 import Modal from '../../components/ui/Modal';
 import clsx from 'clsx';
+
+function formatRuleWindow(startMinutes: number, endMinutes: number) {
+  const formatTime = (minutes: number) => {
+    if (minutes === 0) return 'no momento do evento';
+    if (minutes < 0) return `${Math.abs(minutes)} min antes do evento`;
+    return `${Math.abs(minutes)} min após o evento`;
+  };
+
+  return `Inicia ${formatTime(startMinutes)} e encerra ${formatTime(endMinutes)}`;
+}
 
 export default function CheckinRules() {
   const { id: eventId } = useParams();
@@ -40,8 +51,10 @@ export default function CheckinRules() {
 
   const [form, setForm] = useState({
     name: '',
-    startOffsetMinutes: 0,
-    endOffsetMinutes: 0,
+    startOffsetValue: 0,
+    startOffsetUnit: 'before',
+    endOffsetValue: 0,
+    endOffsetUnit: 'after',
     required: false,
     active: true,
   });
@@ -69,7 +82,18 @@ export default function CheckinRules() {
 
   const errors: Record<string, string> = {};
   if (!form.name.trim()) errors.name = 'Nome da regra é obrigatório';
-  if (form.startOffsetMinutes > form.endOffsetMinutes) {
+
+  const calcStart =
+    form.startOffsetUnit === 'before'
+      ? -Math.abs(form.startOffsetValue)
+      : Math.abs(form.startOffsetValue);
+
+  const calcEnd =
+    form.endOffsetUnit === 'before'
+      ? -Math.abs(form.endOffsetValue)
+      : Math.abs(form.endOffsetValue);
+
+  if (calcStart > calcEnd) {
     errors.window = 'Janela inicial não pode ser maior que a final';
   }
 
@@ -87,8 +111,8 @@ export default function CheckinRules() {
       if (editingRuleId) {
         const updated = await updateCheckinRule(editingRuleId, {
           name: form.name,
-          startOffsetMinutes: form.startOffsetMinutes,
-          endOffsetMinutes: form.endOffsetMinutes,
+          startOffsetMinutes: calcStart,
+          endOffsetMinutes: calcEnd,
           required: form.required,
         });
 
@@ -97,7 +121,11 @@ export default function CheckinRules() {
         );
       } else {
         const rule = await createCheckinRule({
-          ...form,
+          name: form.name,
+          startOffsetMinutes: calcStart,
+          endOffsetMinutes: calcEnd,
+          required: form.required,
+          active: form.active,
           eventId,
         });
 
@@ -105,8 +133,10 @@ export default function CheckinRules() {
       }
       setForm({
         name: '',
-        startOffsetMinutes: 0,
-        endOffsetMinutes: 0,
+        startOffsetValue: 0,
+        startOffsetUnit: 'before',
+        endOffsetValue: 0,
+        endOffsetUnit: 'after',
         required: false,
         active: true,
       });
@@ -123,20 +153,25 @@ export default function CheckinRules() {
   function handleEditRule(rule: CheckinRule) {
     setForm({
       name: rule.name,
-      startOffsetMinutes: rule.startOffsetMinutes,
-      endOffsetMinutes: rule.endOffsetMinutes,
+      startOffsetValue: Math.abs(rule.startOffsetMinutes),
+      startOffsetUnit: rule.startOffsetMinutes < 0 ? 'before' : 'after',
+      endOffsetValue: Math.abs(rule.endOffsetMinutes),
+      endOffsetUnit: rule.endOffsetMinutes < 0 ? 'before' : 'after',
       required: rule.required,
       active: rule.active,
     });
     setEditingRuleId(rule.id);
     setFormErrors({});
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   function handleCancelEdit() {
     setForm({
       name: '',
-      startOffsetMinutes: 0,
-      endOffsetMinutes: 0,
+      startOffsetValue: 0,
+      startOffsetUnit: 'before',
+      endOffsetValue: 0,
+      endOffsetUnit: 'after',
       required: false,
       active: true,
     });
@@ -182,13 +217,27 @@ export default function CheckinRules() {
 
   return (
     <main className="p-6 lg:p-8 max-w-4xl mx-auto">
-      <div className="mb-8">
+      <div className="mb-6">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">
           Configuração de Check-in
         </h1>
-        <p className="text-gray-600">
+        <p className="text-gray-600 mb-4">
           Gerencie as regras de check-in para os participantes deste evento.
         </p>
+
+        <Alert type="info" closable={false} title="Como funcionam as regras?">
+          <ul className="list-disc list-inside space-y-1 text-sm mt-2 text-gray-700">
+            <li>
+              <strong>Obrigatórias ou Opcionais:</strong> Você pode definir quais regras são essenciais para a entrada.
+            </li>
+            <li>
+              <strong>Sempre ativo:</strong> É necessário manter pelo menos 1 regra ativa no painel.
+            </li>
+            <li>
+              <strong>Sem conflitos:</strong> O sistema evita paradoxos validando que horários de regras <em>Obrigatórias</em> nunca sejam 100% excludentes entre si.
+            </li>
+          </ul>
+        </Alert>
       </div>
 
       {validationErrors.length > 0 && (
@@ -238,33 +287,68 @@ export default function CheckinRules() {
               disabled={loading || creating}
             />
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Input
-                label="Minutos Antes do Evento *"
-                type="number"
-                value={form.startOffsetMinutes}
-                onChange={(e) =>
-                  setForm({
-                    ...form,
-                    startOffsetMinutes: Number(e.target.value),
-                  })
-                }
-                helperText="Quando liberar o check-in (neg. = antes)"
-                icon={<FiClock size={18} />}
-                disabled={loading || creating}
-              />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">
+                  Início do Check-in
+                </label>
+                <div className="flex gap-2">
+                  <Input
+                    type="number"
+                    min="0"
+                    value={form.startOffsetValue}
+                    onChange={(e) =>
+                      setForm({
+                        ...form,
+                        startOffsetValue: Number(e.target.value),
+                      })
+                    }
+                    icon={<FiClock size={18} />}
+                    disabled={loading || creating}
+                  />
+                  <Select
+                    value={form.startOffsetUnit}
+                    onChange={(e) =>
+                      setForm({ ...form, startOffsetUnit: e.target.value })
+                    }
+                    disabled={loading || creating}
+                  >
+                    <option value="before">min antes</option>
+                    <option value="after">min depois</option>
+                  </Select>
+                </div>
+              </div>
 
-              <Input
-                label="Minutos Depois do Evento *"
-                type="number"
-                value={form.endOffsetMinutes}
-                onChange={(e) =>
-                  setForm({ ...form, endOffsetMinutes: Number(e.target.value) })
-                }
-                helperText="Quando encerrar o check-in"
-                icon={<FiClock size={18} />}
-                disabled={loading || creating}
-              />
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">
+                  Encerramento do Check-in
+                </label>
+                <div className="flex gap-2">
+                  <Input
+                    type="number"
+                    min="0"
+                    value={form.endOffsetValue}
+                    onChange={(e) =>
+                      setForm({
+                        ...form,
+                        endOffsetValue: Number(e.target.value),
+                      })
+                    }
+                    icon={<FiClock size={18} />}
+                    disabled={loading || creating}
+                  />
+                  <Select
+                    value={form.endOffsetUnit}
+                    onChange={(e) =>
+                      setForm({ ...form, endOffsetUnit: e.target.value })
+                    }
+                    disabled={loading || creating}
+                  >
+                    <option value="before">min antes</option>
+                    <option value="after">min depois</option>
+                  </Select>
+                </div>
+              </div>
             </div>
 
             {formErrors.window && (
@@ -319,7 +403,16 @@ export default function CheckinRules() {
         ) : (
           <div className="space-y-3">
             {rules.map((rule) => (
-              <Card key={rule.id} className="transition-all hover:shadow-lg">
+              <Card
+                key={rule.id}
+                className={clsx(
+                  'transition-all hover:shadow-lg',
+                  rule.id === editingRuleId &&
+                  'border-2 border-primary-500 shadow-md',
+                  !rule.active &&
+                  'bg-gray-50 opacity-75 border-l-4 border-l-gray-300'
+                )}
+              >
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">
@@ -343,9 +436,11 @@ export default function CheckinRules() {
                         <span className="text-gray-600">
                           Janela de Validação:
                         </span>
-                        <p className="text-gray-900 font-mono">
-                          {rule.startOffsetMinutes} min antes até{' '}
-                          {rule.endOffsetMinutes} min depois
+                        <p className="text-gray-900 font-medium">
+                          {formatRuleWindow(
+                            rule.startOffsetMinutes,
+                            rule.endOffsetMinutes
+                          )}
                         </p>
                       </div>
                       <div>

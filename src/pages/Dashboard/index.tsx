@@ -76,9 +76,10 @@ export default function Dashboard() {
             </div>
           </div>
           <div className="flex-1">
-            <p className="text-sm text-gray-600 mb-1">Total de Eventos</p>
+            <p className="text-sm text-gray-600 mb-1">Total na Plataforma</p>
             <p className="text-3xl font-bold text-gray-900">
-              {data.totalEvents}
+              {data.totalEvents}{' '}
+              <span className="text-sm font-normal text-gray-500">eventos</span>
             </p>
           </div>
         </Card>
@@ -100,7 +101,7 @@ export default function Dashboard() {
 
       <section className="mb-8">
         <h2 className="text-2xl font-bold text-gray-900 mb-4">
-          Próximos Eventos
+          Próximos Eventos <span className="text-base font-normal text-gray-500">(Ativos)</span>
         </h2>
 
         {data.upcomingEvents.length === 0 ? (
@@ -121,11 +122,6 @@ export default function Dashboard() {
                   <p className="text-sm text-gray-600 mt-1">
                     {new Date(event.date).toLocaleString('pt-BR')}
                   </p>
-                </div>
-                <div className="text-right">
-                  <span className="inline-block px-3 py-1 bg-primary-100 text-primary-700 rounded-full text-sm font-medium">
-                    Próximo
-                  </span>
                 </div>
               </Card>
             ))}
