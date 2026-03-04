@@ -76,10 +76,9 @@ export default function Dashboard() {
             </div>
           </div>
           <div className="flex-1">
-            <p className="text-sm text-gray-600 mb-1">Total na Plataforma</p>
+            <p className="text-sm text-gray-600 mb-1">Total de Eventos Cadastrados</p>
             <p className="text-3xl font-bold text-gray-900">
-              {data.totalEvents}{' '}
-              <span className="text-sm font-normal text-gray-500">eventos</span>
+              {data.totalEvents}
             </p>
           </div>
         </Card>

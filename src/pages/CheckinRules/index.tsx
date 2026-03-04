@@ -260,7 +260,6 @@ export default function CheckinRules() {
       <Card className="mb-8">
         <div>
           <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2 mb-6">
-            <FiPlus size={20} />
             {editingRuleId ? 'Editar Regra' : 'Adicionar Nova Regra'}
           </h2>
 
