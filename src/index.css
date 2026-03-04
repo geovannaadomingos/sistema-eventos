@@ -1,16 +1,16 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @layer components {
   /* Force background-color on buttons with bg- classes to override base reset */
-  button[class*="bg-primary"] {
+  button[class*='bg-primary'] {
     background-color: #0284c7 !important;
   }
-  
-  button[class*="bg-secondary"] {
+
+  button[class*='bg-secondary'] {
     background-color: #7c3aed !important;
   }
-  
-  button[class*="bg-error"] {
+
+  button[class*='bg-error'] {
     background-color: #ef4444 !important;
   }
 }

@@ -11,7 +11,6 @@ export async function loginRequest(
 ): Promise<LoginResponse> {
   return new Promise((resolve, reject) => {
     setTimeout(() => {
-      // credencial mockada válida
       if (email === 'admin@email.com' && password === '123456') {
         resolve({
           token: 'fake-jwt-token',

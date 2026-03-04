@@ -32,7 +32,8 @@ export default function ParticipantForm({
   const errors: Record<string, string> = {};
   if (!name) errors.name = 'Nome é obrigatório';
   if (!email) errors.email = 'Email é obrigatório';
-  else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errors.email = 'Email inválido';
+  else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
+    errors.email = 'Email inválido';
   if (!eventId) errors.eventId = 'Evento é obrigatório';
 
   async function handleSubmit(e: React.FormEvent) {
@@ -47,14 +48,17 @@ export default function ParticipantForm({
     try {
       await onSubmit({ name, email, eventId, checkIn });
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Erro ao salvar';
+      const errorMessage =
+        err instanceof Error ? err.message : 'Erro ao salvar';
       setError(errorMessage);
     }
   }
 
   return (
     <Card className="max-w-2xl mx-auto">
-      <h2 className="text-2xl font-bold mb-6">{initialData?.id ? 'Editar Participante' : 'Cadastrar Participante'}</h2>
+      <h2 className="text-2xl font-bold mb-6">
+        {initialData?.id ? 'Editar Participante' : 'Cadastrar Participante'}
+      </h2>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {error && (

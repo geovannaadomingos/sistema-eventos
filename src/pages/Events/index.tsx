@@ -86,7 +86,6 @@ export default function Events() {
 
   return (
     <main className="p-6 lg:p-8 max-w-7xl mx-auto">
-      {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Eventos</h1>
@@ -102,7 +101,6 @@ export default function Events() {
         </Button>
       </div>
 
-      {/* Error Alert */}
       {error && (
         <div className="mb-6">
           <Alert type="error" closable onClose={() => setError(null)}>
@@ -111,7 +109,6 @@ export default function Events() {
         </div>
       )}
 
-      {/* Filters */}
       <div className="bg-white rounded-lg shadow-md p-6 mb-6">
         <h2 className="text-sm font-semibold text-gray-900 uppercase tracking-wide mb-4">
           Buscar e Filtrar
@@ -122,7 +119,21 @@ export default function Events() {
             placeholder="Buscar por nome do evento..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            icon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>}
+            icon={
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                />
+              </svg>
+            }
           />
 
           <Select
@@ -137,7 +148,6 @@ export default function Events() {
         </div>
       </div>
 
-      {/* Events List */}
       {filteredEvents.length === 0 ? (
         <div className="bg-white rounded-lg shadow-md p-12 text-center">
           <p className="text-gray-500 text-lg">
@@ -170,7 +180,7 @@ export default function Events() {
                     'inline-block px-3 py-1 rounded-full text-sm font-medium',
                     value === 'ativo'
                       ? 'bg-green-100 text-green-800'
-                      : 'bg-gray-100 text-gray-800'
+                      : 'bg-gray-100 text-gray-800',
                   )}
                 >
                   {value === 'ativo' ? 'Ativo' : 'Encerrado'}
@@ -193,7 +203,9 @@ export default function Events() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => navigate(`/eventos/${event.id}/regras-checkin`)}
+                    onClick={() =>
+                      navigate(`/eventos/${event.id}/regras-checkin`)
+                    }
                     title="Configurar regras de check-in"
                   >
                     <FiSettings size={16} />
@@ -219,7 +231,6 @@ export default function Events() {
         />
       )}
 
-      {/* Delete Confirmation Modal */}
       <Modal
         isOpen={deleteModalOpen}
         onClose={() => {

@@ -7,7 +7,13 @@ import { getEvents } from '../../services/eventService';
 import type { Participant } from '../../types/Participant';
 import type { Event } from '../../types/Event';
 import { useNavigate } from 'react-router-dom';
-import { FiPlus, FiEdit2, FiTrash2, FiCheckCircle, FiXCircle } from 'react-icons/fi';
+import {
+  FiPlus,
+  FiEdit2,
+  FiTrash2,
+  FiCheckCircle,
+  FiXCircle,
+} from 'react-icons/fi';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import Select from '../../components/ui/Select';
@@ -27,7 +33,8 @@ export default function Participants() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [selectedParticipant, setSelectedParticipant] = useState<Participant | null>(null);
+  const [selectedParticipant, setSelectedParticipant] =
+    useState<Participant | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -92,11 +99,14 @@ export default function Participants() {
 
   return (
     <main className="p-6 lg:p-8 max-w-7xl mx-auto">
-      {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Participantes</h1>
-          <p className="text-gray-600">Gerencie os participantes dos seus eventos.</p>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            Participantes
+          </h1>
+          <p className="text-gray-600">
+            Gerencie os participantes dos seus eventos.
+          </p>
         </div>
         <Button
           onClick={() => navigate('/participantes/criar')}
@@ -108,7 +118,6 @@ export default function Participants() {
         </Button>
       </div>
 
-      {/* Error Alert */}
       {error && (
         <div className="mb-6">
           <Alert type="error" closable onClose={() => setError(null)}>
@@ -117,7 +126,6 @@ export default function Participants() {
         </div>
       )}
 
-      {/* Filters */}
       <div className="bg-white rounded-lg shadow-md p-6 mb-6">
         <h2 className="text-sm font-semibold text-gray-900 uppercase tracking-wide mb-4">
           Buscar e Filtrar
@@ -128,7 +136,21 @@ export default function Participants() {
             placeholder="Buscar por nome..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            icon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>}
+            icon={
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                />
+              </svg>
+            }
           />
 
           <Select
@@ -136,7 +158,7 @@ export default function Participants() {
             onChange={(e) => setEventFilter(e.target.value)}
             options={[
               { value: 'todos', label: 'Todos os eventos' },
-              ...events.map(e => ({ value: e.id, label: e.name })),
+              ...events.map((e) => ({ value: e.id, label: e.name })),
             ]}
           />
 
@@ -152,7 +174,6 @@ export default function Participants() {
         </div>
       </div>
 
-      {/* Table */}
       <Table<Participant>
         columns={[
           {
@@ -164,7 +185,10 @@ export default function Participants() {
             key: 'email',
             label: 'Email',
             render: (value) => (
-              <a href={`mailto:${value}`} className="text-primary-600 hover:underline">
+              <a
+                href={`mailto:${value}`}
+                className="text-primary-600 hover:underline"
+              >
                 {value}
               </a>
             ),
@@ -204,7 +228,9 @@ export default function Participants() {
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => navigate(`/participantes/editar/${participant.id}`)}
+                  onClick={() =>
+                    navigate(`/participantes/editar/${participant.id}`)
+                  }
                   title="Editar participante"
                 >
                   <FiEdit2 size={16} />
@@ -229,7 +255,6 @@ export default function Participants() {
         emptyMessage="Nenhum participante encontrado com os filtros aplicados"
       />
 
-      {/* Delete Confirmation Modal */}
       <Modal
         isOpen={deleteModalOpen}
         onClose={() => {
@@ -252,7 +277,9 @@ export default function Participants() {
             <Button
               variant="danger"
               isLoading={deletingId === selectedParticipant?.id}
-              onClick={() => selectedParticipant && handleDelete(selectedParticipant.id)}
+              onClick={() =>
+                selectedParticipant && handleDelete(selectedParticipant.id)
+              }
             >
               Remover
             </Button>

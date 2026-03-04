@@ -59,17 +59,16 @@ export default function Dashboard() {
 
   return (
     <main className="p-6 lg:p-8 max-w-7xl mx-auto">
-      {/* Header */}
       <div className="mb-8">
         <h1 className="text-4xl font-bold text-gray-900 mb-2">
           Painel do Organizador
         </h1>
-        <p className="text-gray-600">Visão geral dos seus eventos e participantes.</p>
+        <p className="text-gray-600">
+          Visão geral dos seus eventos e participantes.
+        </p>
       </div>
 
-      {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-        {/* Total de Eventos */}
         <Card className="flex items-center gap-4">
           <div className="flex-shrink-0">
             <div className="flex items-center justify-center h-12 w-12 rounded-lg bg-primary-100">
@@ -78,11 +77,12 @@ export default function Dashboard() {
           </div>
           <div className="flex-1">
             <p className="text-sm text-gray-600 mb-1">Total de Eventos</p>
-            <p className="text-3xl font-bold text-gray-900">{data.totalEvents}</p>
+            <p className="text-3xl font-bold text-gray-900">
+              {data.totalEvents}
+            </p>
           </div>
         </Card>
 
-        {/* Total de Participantes */}
         <Card className="flex items-center gap-4">
           <div className="flex-shrink-0">
             <div className="flex items-center justify-center h-12 w-12 rounded-lg bg-secondary-100">
@@ -91,14 +91,17 @@ export default function Dashboard() {
           </div>
           <div className="flex-1">
             <p className="text-sm text-gray-600 mb-1">Total de Participantes</p>
-            <p className="text-3xl font-bold text-gray-900">{data.totalParticipants}</p>
+            <p className="text-3xl font-bold text-gray-900">
+              {data.totalParticipants}
+            </p>
           </div>
         </Card>
       </div>
 
-      {/* Próximos Eventos */}
       <section className="mb-8">
-        <h2 className="text-2xl font-bold text-gray-900 mb-4">Próximos Eventos</h2>
+        <h2 className="text-2xl font-bold text-gray-900 mb-4">
+          Próximos Eventos
+        </h2>
 
         {data.upcomingEvents.length === 0 ? (
           <Card>
@@ -130,9 +133,10 @@ export default function Dashboard() {
         )}
       </section>
 
-      {/* Últimos Check-ins */}
       <section>
-        <h2 className="text-2xl font-bold text-gray-900 mb-4">Últimos Check-ins</h2>
+        <h2 className="text-2xl font-bold text-gray-900 mb-4">
+          Últimos Check-ins
+        </h2>
 
         {data.recentCheckins.length === 0 ? (
           <Card>

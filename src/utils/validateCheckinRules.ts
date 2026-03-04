@@ -19,7 +19,6 @@ export function validateCheckinRules(rules: CheckinRule[]): string[] {
     errors.push('Deve existir pelo menos uma regra ativa.');
   }
 
-
   if (required.length > 1 && !hasCommonWindow(required)) {
     errors.push(
       'Existem regras obrigatórias com janelas de validação incompatíveis. Não há um período onde todas as regras obrigatórias podem coexistir.',

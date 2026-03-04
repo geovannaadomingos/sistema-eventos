@@ -41,15 +41,12 @@ export default function Login() {
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-primary-600 to-primary-800 px-4">
       <div className="w-full max-w-md">
-        {/* Card */}
         <div className="bg-white rounded-2xl shadow-2xl p-8">
-          {/* Header */}
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold text-gray-900 mb-2">Bem-vindo</h1>
             <p className="text-gray-600">Painel do Organizador de Eventos</p>
           </div>
 
-          {/* Error Alert */}
           {error && (
             <div className="mb-6">
               <Alert type="error" closable onClose={() => setError('')}>
@@ -58,7 +55,6 @@ export default function Login() {
             </div>
           )}
 
-          {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-5">
             <Input
               icon={<FiMail size={18} />}
@@ -92,7 +88,6 @@ export default function Login() {
             </Button>
           </form>
 
-          {/* Footer */}
           <p className="text-center text-sm text-gray-600 mt-6">
             Credenciais de teste: admin@email.com / 123456
           </p>

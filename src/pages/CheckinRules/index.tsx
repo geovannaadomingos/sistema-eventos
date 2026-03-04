@@ -8,7 +8,14 @@ import {
 } from '../../services/checkinRuleService';
 import { validateCheckinRules } from '../../utils/validateCheckinRules';
 import type { CheckinRule } from '../../types/CheckinRule';
-import { FiTrash2, FiToggleLeft, FiToggleRight, FiPlus, FiClock, FiEdit2 } from 'react-icons/fi';
+import {
+  FiTrash2,
+  FiToggleLeft,
+  FiToggleRight,
+  FiPlus,
+  FiClock,
+  FiEdit2,
+} from 'react-icons/fi';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import Checkbox from '../../components/ui/Checkbox';
@@ -23,8 +30,8 @@ export default function CheckinRules() {
 
   const [rules, setRules] = useState<CheckinRule[]>([]);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
-  const [loading, setLoading] = useState(true); // for initial fetch
-  const [creating, setCreating] = useState(false); // form submission state
+  const [loading, setLoading] = useState(true);
+  const [creating, setCreating] = useState(false);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [editingRuleId, setEditingRuleId] = useState<string | null>(null);
@@ -85,7 +92,9 @@ export default function CheckinRules() {
           required: form.required,
         });
 
-        setRules((prev) => prev.map((r) => (r.id === editingRuleId ? updated : r)));
+        setRules((prev) =>
+          prev.map((r) => (r.id === editingRuleId ? updated : r)),
+        );
       } else {
         const rule = await createCheckinRule({
           ...form,
@@ -173,7 +182,6 @@ export default function CheckinRules() {
 
   return (
     <main className="p-6 lg:p-8 max-w-4xl mx-auto">
-      {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">
           Configuração de Check-in
@@ -183,30 +191,23 @@ export default function CheckinRules() {
         </p>
       </div>
 
-      {/* Validation Errors Alert */}
       {validationErrors.length > 0 && (
         <div className="mb-6 space-y-2">
           {validationErrors.map((error, idx) => (
-            <Alert
-              key={idx}
-              type="warning"
-              closable={false}
-            >
+            <Alert key={idx} type="warning" closable={false}>
               {error}
             </Alert>
           ))}
         </div>
       )}
 
-      {/* Get Started Info */}
       {rules.length === 0 && (
         <Alert type="info" closable={false} className="mb-6">
-          Nenhuma regra de check-in configurada. Crie pelo menos uma regra para ativar o
-          check-in neste evento.
+          Nenhuma regra de check-in configurada. Crie pelo menos uma regra para
+          ativar o check-in neste evento.
         </Alert>
       )}
 
-      {/* Add Rule Card */}
       <Card className="mb-8">
         <div>
           <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2 mb-6">
@@ -243,7 +244,10 @@ export default function CheckinRules() {
                 type="number"
                 value={form.startOffsetMinutes}
                 onChange={(e) =>
-                  setForm({ ...form, startOffsetMinutes: Number(e.target.value) })
+                  setForm({
+                    ...form,
+                    startOffsetMinutes: Number(e.target.value),
+                  })
                 }
                 helperText="Quando liberar o check-in (neg. = antes)"
                 icon={<FiClock size={18} />}
@@ -277,7 +281,12 @@ export default function CheckinRules() {
             />
 
             <div className="flex gap-3 pt-4">
-              <Button type="submit" variant="primary" className="gap-2" isLoading={creating}>
+              <Button
+                type="submit"
+                variant="primary"
+                className="gap-2"
+                isLoading={creating}
+              >
                 <FiPlus size={18} />
                 {editingRuleId ? 'Salvar Alterações' : 'Adicionar Regra'}
               </Button>
@@ -297,7 +306,9 @@ export default function CheckinRules() {
       </Card>
 
       <div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-4">Regras Configuradas</h2>
+        <h2 className="text-2xl font-bold text-gray-900 mb-4">
+          Regras Configuradas
+        </h2>
 
         {rules.length === 0 ? (
           <Card>
@@ -320,7 +331,7 @@ export default function CheckinRules() {
                           'inline-block px-2 py-1 rounded-full text-xs font-medium',
                           rule.required
                             ? 'bg-red-100 text-red-800'
-                            : 'bg-blue-100 text-blue-800'
+                            : 'bg-blue-100 text-blue-800',
                         )}
                       >
                         {rule.required ? 'Obrigatória' : 'Opcional'}
@@ -329,18 +340,22 @@ export default function CheckinRules() {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
                       <div>
-                        <span className="text-gray-600">Janela de Validação:</span>
+                        <span className="text-gray-600">
+                          Janela de Validação:
+                        </span>
                         <p className="text-gray-900 font-mono">
-                          {rule.startOffsetMinutes} min antes até {rule.endOffsetMinutes} min
-                          depois
+                          {rule.startOffsetMinutes} min antes até{' '}
+                          {rule.endOffsetMinutes} min depois
                         </p>
                       </div>
                       <div>
                         <span className="text-gray-600">Status:</span>
-                        <p className={clsx(
-                          'font-semibold',
-                          rule.active ? 'text-green-700' : 'text-gray-600'
-                        )}>
+                        <p
+                          className={clsx(
+                            'font-semibold',
+                            rule.active ? 'text-green-700' : 'text-gray-600',
+                          )}
+                        >
                           {rule.active ? '✓ Ativa' : '○ Inativa'}
                         </p>
                       </div>
