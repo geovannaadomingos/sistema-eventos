@@ -10,6 +10,8 @@ const mockEvents = [
     date: '2026-03-05T10:00:00.000Z',
     location: 'SP',
     status: 'ativo' as const,
+    createdAt: '2026-03-01T10:00:00.000Z',
+    updatedAt: '2026-03-01T10:00:00.000Z',
   },
 ];
 
